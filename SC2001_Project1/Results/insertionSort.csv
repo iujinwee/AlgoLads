@@ -1,0 +1,4 @@
+"ArraySize","TimeInMs","KeyComparisons"
+"10","0","8"
+"100","0","98"
+"1000","9","219038"
