@@ -1,6 +1,7 @@
 import random
-max_size = 10000000
-max_n = 10000000
+import functools
+max_size = 100000
+max_n = 100000
 count = 0
 
 def generateRandomList(size, max_value):
@@ -69,8 +70,9 @@ sorted_list = hybrid_sort(unsorted,10)
 control = sorted(control)
 
 # check that algo is correct
-if sorted_list == control:
-    print("OK")
+
+if functools.reduce(lambda x, y : x and y, map(lambda p, q: p == q,sorted_list,control), True):
+    print ("The control and sorted are the same")
 
 print("Number of comparisons: {}".format(count))
 print(sorted_list[:100])
