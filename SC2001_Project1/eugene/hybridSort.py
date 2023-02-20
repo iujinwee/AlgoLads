@@ -5,13 +5,13 @@ import matplotlib.pyplot as plt
 
 max_size = 10000000
 max_n = 100000
-initial_size = 1000
+initial_size = 1000000
 count = 0
 
 def generateRandomList(size, max_value):
     
     arr = []
-    for _ in range(2):
+    for _ in range(1):
         arr.append([random.randint(1, max_value) for _ in range(size)])
         size *= 10
 
@@ -78,6 +78,7 @@ def hybrid_sort(arr, s):
 
 count=0
 S = 10
+runs = 5
 
 for array in unsorted: 
     input_array = array
@@ -86,12 +87,12 @@ for array in unsorted:
     optimal_time = 0
     print("\nArray Size: {}".format(str(len(input_array))))
 
-    for s in range(2, 150, 2):
+    for s in range(5, 300, 5):
 
         total_time = 0
         count = 0    
 
-        for _ in range(200):
+        for _ in range(runs):
             temp_array = input_array.copy()
 
             start_time = time.time()
@@ -99,14 +100,14 @@ for array in unsorted:
             elapsed_time = time.time() - start_time
             total_time += elapsed_time
 
-        if optimal_time > total_time/10:
-            optimal_time = total_time/10
+        if optimal_time > total_time/runs:
+            optimal_time = total_time/runs
             optimal_S = s
         elif optimal_time == 0:
             optimal_S = s
-            optimal_time = total_time/10
+            optimal_time = total_time/runs
 
-        results.append([s, count/10, total_time/10])
+        results.append([s, count/runs, total_time/runs])
         print("Progress: " + str(s))
         
         
@@ -152,4 +153,4 @@ for array in unsorted:
 
     # Show the plot
     
-    plt.savefig('C:/Users/eugen/Desktop/Coding/Coding Projects/Github Repo/AlgoLads/SC2001_Project1/eugene/Charts/size_{}_time_keycomp_against_S.png'.format(str(len(input_array))))
+    plt.savefig('C:/Users/eugen/Desktop/Coding/Coding Projects/Github Repo/AlgoLads/SC2001_Project1/eugene/Charts/size_{}_time_keycomp_against_S_{}_runs.png'.format(str(len(input_array)), runs))
