@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 
 max_size = 10000000
 max_n = 100000
-initial_size = 1000000
+initial_size = 10000000
 count = 0
 
 def generateRandomList(size, max_value):
@@ -78,7 +78,7 @@ def hybrid_sort(arr, s):
 
 count=0
 S = 10
-runs = 5
+runs = 1
 
 for array in unsorted: 
     input_array = array
