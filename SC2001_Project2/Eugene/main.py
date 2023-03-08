@@ -1,4 +1,4 @@
-
+import heapq
 # Adjacency Matrix representation in Python
 
 class Graph(object):
@@ -92,6 +92,26 @@ class priority_queue(object):
 
 
 
+class priority_queue_heap(object):
+    def __init__(self):
+        self.pq = []
+        self.len = len(self.pq)
+
+    def add(self, vertex, weight):
+        heapq.heappush(self.pq, (weight, vertex))
+        self.len += 1
+
+    def remove(self, vertex):
+        for v in self.pq:
+            if v[1] == vertex:
+                self.pq.remove(v)
+                self.len -= 1
+
+    def getMin(self):
+        return self.pq[0]
+
+    def printQueue(self):
+        print(self.pq)
 
 def DijkstraAlgo_A(graph, source):
     d = []
@@ -166,52 +186,6 @@ def DijkstraAlgo_B(graph, source):
 
 
     return S, d, pi
-
-
-# def DijkstraAlgo_B(graph, source):
-#     import heapq as heap
-#     d = []
-#     pi = []
-#     S = []
-#     pq = priority_queue()
-
-#     for v in range(graph.getSize()):
-#         d.append(float('inf'))
-#         pi.append(0)
-#         S.append(None)
-
-#     d[source-1] = 0
-
-#     # Minimizing Heap Priority Queue
-#     min_heap_pq = [] 
-#     for vertex in range(len(d)):
-#         heap.heappush(min_heap_pq, (vertex+1, d[vertex]))
-
-#     while len(min_heap_pq):
-        
-#         # Get minimum weight    
-#         u = min_heap_pq[0][0]
-#         S[u] = 1
-#         heap.heappop(min_heap_pq)
-
-#         # For every adjacent node
-#         # Node Structure: Header Node -> [(Node, Edge Weight)]
-#         for nodes in graph.adjList: 
-#             for node in graph.adjList[nodes]:
-#                 v = node[0] - 1 
-#                 if d[v] > d[u] + node[1]:
-#                     # Remove vertex from heap
-#                     min_heap_pq.remove((v+1, d[v]))
-#                     heap.heapify(min_heap_pq)
-
-#                     d[v] = d[u] + node[1]
-#                     pi[v] = u+1
-
-#                     # Re-add vertex
-#                     heap.heappush(min_heap_pq, (v+1, d[v]))
-
-#     return S, d, pi
-
 
 def main():
     import time, random
