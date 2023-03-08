@@ -196,6 +196,7 @@ def main():
 
     start_time = time.time()
     S, d, pi = DijkstraAlgo_A(g, 1)
+    print(S, d, pi)
     elapsed_time = time.time() - start_time 
     
     print("Elapsed Time: {:2}s".format(elapsed_time))
@@ -205,6 +206,7 @@ def main():
 
     start_time = time.time()
     S, d, pi = DijkstraAlgo_B(g, 1)
+    print(S, d, pi)
     elapsed_time = time.time() - start_time 
 
     print("Elapsed Time: {:2}s".format(elapsed_time))
