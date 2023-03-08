@@ -73,14 +73,14 @@ class priority_queue(object):
         self.len = len(self.pq)
 
     def add(self, vertex, weight):
-        self.pq.append((weight, vertex))
-        self.pq = sorted(self.pq, key=lambda x: x[0])
+        self.pq.append((vertex, weight))
+        self.pq = sorted(self.pq, key=lambda x: x[1])
 
         self.len+=1
 
     def remove(self, vertex): 
         for v in self.pq: 
-            if v[1] == vertex: 
+            if v[0] == vertex: 
                 self.pq.remove(v)
                 self.len -= 1
 
@@ -118,12 +118,14 @@ def DijkstraAlgo_A(graph, source):
     pi = []
     S = []
     pq = priority_queue()
-
+    
+    # Initialization 
     for v in range(graph.getSize()):
         d.append(float('inf'))
         pi.append(0)
         S.append(None)
 
+    # Set source node 
     d[source-1] = 0
 
     # Push every vertex into priority queue using array based on d[]
@@ -133,14 +135,18 @@ def DijkstraAlgo_A(graph, source):
     while pq.len:
         
         # Get minimum weight    
-        u = pq.getMin()[1] 
+        u = pq.getMin()[0] 
         S[u] = 1
         pq.remove(u)
 
-        # For every adjacent node
         for v in range(graph.getSize()):
-            if ((graph.adjMatrix[u][v] != 0) and (graph.adjMatrix[u][v] != float('inf'))
-            and (d[v] > d[u] + graph.adjMatrix[u][v])):
+            # For every adjacent node
+            if ((graph.adjMatrix[u][v] != 0) and 
+                (graph.adjMatrix[u][v] != float('inf'))
+                # Not already minimized 
+                and (S[v] != 1) 
+                # Can minimize d[v]
+                and (d[v] > d[u] + graph.adjMatrix[u][v])): 
                 pq.remove(v)
                 d[v] = d[u] + graph.adjMatrix[u][v]
                 pi[v] = u+1
