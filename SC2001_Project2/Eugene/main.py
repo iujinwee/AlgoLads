@@ -131,6 +131,7 @@ def DijkstraAlgo_A(graph, source):
             
 
 def DijkstraAlgo_B(graph, source):
+    import heapq as heap
     d = []
     pi = []
     S = []
@@ -143,16 +144,17 @@ def DijkstraAlgo_B(graph, source):
 
     d[source-1] = 0
 
-    # Push every vertex into priority queue using array based on d[]
+    # Minimizing Heap Priority Queue
+    min_heap_pq = [] 
     for vertex in range(len(d)):
-        pq.add(vertex, d[vertex])
+        heap.heappush(min_heap_pq, (vertex+1, d[vertex]))
 
-    while pq.len:
+    while len(min_heap_pq):
         
         # Get minimum weight    
-        u = pq.getMin()[0] 
+        u = min_heap_pq[0][0]
         S[u] = 1
-        pq.remove(u)
+        heap.heappop(min_heap_pq)
 
         # For every adjacent node
         # Node Structure: Header Node -> [(Node, Edge Weight)]
@@ -160,10 +162,15 @@ def DijkstraAlgo_B(graph, source):
             for node in graph.adjList[nodes]:
                 v = node[0] - 1 
                 if d[v] > d[u] + node[1]:
-                    pq.remove(v)
+                    # Remove vertex from heap
+                    min_heap_pq.remove((v+1, d[v]))
+                    heap.heapify(min_heap_pq)
+
                     d[v] = d[u] + node[1]
                     pi[v] = u+1
-                    pq.add(v, d[v])
+
+                    # Re-add vertex
+                    heap.heappush(min_heap_pq, (v+1, d[v]))
 
     return S, d, pi
 
