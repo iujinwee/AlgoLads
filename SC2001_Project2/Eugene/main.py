@@ -73,10 +73,23 @@ class priority_queue(object):
         self.len = len(self.pq)
 
     def add(self, vertex, weight):
-        self.pq.append((vertex, weight))
-        self.pq = sorted(self.pq, key=lambda x: x[1])
+        if not self.pq:
+            self.pq.append((vertex, weight))
+            self.len += 1
+            return
 
-        self.len+=1
+        # Binary Search
+        low, high = 0, self.len-1
+
+        while low <= high:
+            mid = (low + high) // 2
+            if self.pq[mid][1] < weight:
+                low = mid + 1
+            else:
+                high = mid - 1
+
+        self.pq.insert(low, (vertex, weight))
+        self.len += 1
 
     def remove(self, vertex): 
         for v in self.pq: 
