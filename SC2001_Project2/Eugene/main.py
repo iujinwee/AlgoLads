@@ -1,4 +1,5 @@
 import heapq
+import numpy as np
 # Adjacency Matrix representation in Python
 
 class Graph(object):
@@ -66,6 +67,27 @@ class Graph(object):
             for item in self.adjList[vertex]:
                 print("{}".format(item), end=" ")
             print("\n")
+
+    # Check if graph is strongly connected
+    def is_strongly_connected(self):
+        # Perform DFS from each vertex
+        for start in range(self.size):
+            visited = [False] * self.size
+            self._dfs(start, visited)
+
+            # Check if all vertices were visited
+            if not all(visited):
+                return False
+
+        return True
+    
+    # Helper function for DFS
+    def _dfs(self, vertex, visited):
+        visited[vertex] = True
+        for neighbor in self.adjList[vertex]:
+            if not visited[neighbor[0] - 1]:
+                self._dfs(neighbor[0] - 1, visited)
+
 
 class priority_queue(object): 
     def __init__(self):
@@ -199,48 +221,103 @@ def DijkstraAlgo_B(graph, source):
                 if ((v[1] != 0) and (v[1] != float('inf'))
                 and (d[v[0]-1] > d[u] + v[1]) and (S[v[0]-1] == None)):
                     pq.remove(v[0]-1) # Time Complexity = O(V)
-                    d[v[0]-1] = d[u] + v[1]
+                    d[v[0]-1] = d[u] + v[1] 
                     pi[v[0]-1] = u+1
                     pq.add(v[0]-1, d[v[0]-1]) # Time Complexity = O(log(V))
 
 
     return S, d, pi
 
+import random
+
+def generate_random_graph(size):
+    # Initialize graph
+    graph = Graph(size)
+
+    # Generate a random permutation of vertices
+    vertices = list(range(1, size + 1))
+    random.shuffle(vertices)
+
+    # Add edges to create a random strongly connected graph
+    for i in range(size):
+        v1 = vertices[i]
+        v2 = vertices[(i + 1) % size]
+        weight = random.randint(1, 10)
+        graph.add_edge(v1, v2, weight)
+
+    # Add additional random edges to increase connectivity
+    for i in range(size * 2):
+        v1 = random.randint(1, size)
+        v2 = random.randint(1, size)
+        if v1 != v2:
+            weight = random.randint(1, 10)
+            graph.add_edge(v1, v2, weight)
+
+    return graph
+
+
 def main():
-    import time, random
+    import time, random, matplotlib.pyplot as plt 
 
-    s = 5
-    g = Graph(s)
+    sizes = range(10, 300, 10)
+    runtime = []
+    runs = 100   
+
+    for size in sizes: 
+        g = generate_random_graph(size)
+        elapsed_time = 0    
+        
+        for _ in range(runs): 
+            start_time = time.time()
+            DijkstraAlgo_A(g, 1)
+            # print(S, d, pi)
+            elapsed_time += time.time() - start_time 
+
+        print(size)
+        # print("Elapsed Time: {:2}s".format(elapsed_time))
+        runtime.append(elapsed_time/runs)
+
+    # Plot the runtime against the vertex size
+    plt.plot(sizes, runtime, label="O($|V|^2$)")
+    plt.xlabel('|V|')
+    plt.ylabel('Runtime (seconds)')
+    plt.title('Runtime vs |V| for Strongly Connected Graphs')
+    plt.legend()
+    plt.show()
+
+    # s = 5
+    # g = Graph(s)
     
-    g.add_edge(1, 2, 4)
-    g.add_edge(1, 3, 2)
-    g.add_edge(1, 4, 6)
-    g.add_edge(1, 5, 8)
-    g.add_edge(2, 4, 4)
-    g.add_edge(2, 5, 3) 
-    g.add_edge(3, 4, 1)
-    g.add_edge(4, 2, 1)
-    g.add_edge(4, 5, 3)
+    # g.add_edge(1, 2, 4)
+    # g.add_edge(1, 3, 2)
+    # g.add_edge(1, 4, 6)
+    # g.add_edge(1, 5, 8)
+    # g.add_edge(2, 4, 4)
+    # g.add_edge(2, 5, 3) 
+    # g.add_edge(3, 4, 1)
+    # g.add_edge(4, 2, 1)
+    # g.add_edge(4, 5, 3)
 
-    # Adjacency Matrix
-    g.print_matrix()
+    # # Adjacency Matrix
+    # g.print_matrix()
 
-    start_time = time.time()
-    S, d, pi = DijkstraAlgo_A(g, 1)
-    print(S, d, pi)
-    elapsed_time = time.time() - start_time 
     
-    print("Elapsed Time: {:2}s".format(elapsed_time))
+    # start_time = time.time()
+    # S, d, pi = DijkstraAlgo_A(g, 1)
+    # print(S, d, pi)
+    # elapsed_time = time.time() - start_time 
+    
+    # print("Elapsed Time: {:2}s".format(elapsed_time))
  
-    # Adjacency Lists
-    g.print_list()
+    # # Adjacency Lists
+    # g.print_list()
 
-    start_time = time.time()
-    S, d, pi = DijkstraAlgo_B(g, 1)
-    print(S, d, pi)
-    elapsed_time = time.time() - start_time 
+    # start_time = time.time()
+    # S, d, pi = DijkstraAlgo_B(g, 1)
+    # print(S, d, pi)
+    # elapsed_time = time.time() - start_time 
 
-    print("Elapsed Time: {:2}s".format(elapsed_time))
+    # print("Elapsed Time: {:2}s".format(elapsed_time))
 
 if __name__ == '__main__':
     main()
