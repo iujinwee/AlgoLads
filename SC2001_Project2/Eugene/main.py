@@ -148,12 +148,59 @@ class priority_queue_heap(object):
     def printQueue(self):
         print(self.pq)
 
+# def DijkstraAlgo_A(graph, source):
+#     d = []
+#     pi = []
+#     S = []
+#     pq = []
+    
+#     # Initialization 
+#     for v in range(graph.getSize()):
+#         d.append(float('inf'))
+#         pi.append(0)
+#         S.append(None)
+#         pq.append((v, d[v])) # Push every vertex into priority queue using array
+
+#     # Set source node 
+#     d[source-1] = 0
+
+#     while len(pq):
+            
+#         pq.sort(key=lambda x: x[1])
+#         print(pq)
+
+#         # Get minimum weight
+#         u = pq[0][0]
+
+#         if S[u] == 1:
+#             for i in range(len(pq)-1): 
+#                 if pq[i][0] == u:
+#                     pq.remove(pq[i])
+#             continue
+
+#         S[u] = 1
+#         for v in range(graph.getSize()):
+#             # For every adjacent node
+#             if ((graph.adjMatrix[u][v] != 0) and 
+#                 (graph.adjMatrix[u][v] != float('inf'))
+#                 # Not already minimized 
+#                 and (S[v] != 1) 
+#                 # Can minimize d[v]
+#                 and (d[v] > d[u] + graph.adjMatrix[u][v])): 
+#                 d[v] = d[u] + graph.adjMatrix[u][v]
+#                 pi[v] = u+1
+#                 pq.append((v, d[v]))
+
+#     return S, d, pi
+
+
 def DijkstraAlgo_A(graph, source):
     d = []
     pi = []
     S = []
     pq = []
-    
+    counter = 0
+
     # Initialization 
     for v in range(graph.getSize()):
         d.append(float('inf'))
@@ -165,7 +212,7 @@ def DijkstraAlgo_A(graph, source):
     # Set source node 
     d[source-1] = 0
 
-    while len(pq):
+    while counter != len(pq):
         
         u = 0
         # Get minimum weight (vertex, weight)
@@ -180,7 +227,8 @@ def DijkstraAlgo_A(graph, source):
         # Remove u from PQ
         for index in range(len(pq)):
             if pq[index][0] == u:
-                pq.remove(pq[index])
+                pq[index] = (u, d[u])
+                counter+=1
                 break
 
         for v in range(graph.getSize()):
@@ -199,7 +247,7 @@ def DijkstraAlgo_A(graph, source):
                 if temp_weight < d[v]:
                     # Update weight
                     d[v] = temp_weight 
-                    pq[v][1] = temp_weight 
+                    pq[v] = (v, temp_weight)
 
     return S, d, pi
             
@@ -271,15 +319,15 @@ def generate_graph(size, num_edges, sparse=True):
             if i+1 != j and graph.adjMatrix[i][j-1] == float('inf'):
                 weight = random.randint(1, 100)
                 graph.add_edge(i+1, j, weight)
-                edges_added += 1
+                edges_added += 1    
                 
     return graph
 
 
 def main():
-    part_a()
+    # part_a()
 
-    # part_c()
+    part_c()
 
 
 def part_a():
@@ -290,7 +338,7 @@ def part_a():
     sizes = range(10, 200, 10)
     runtime_dense = []
     runtime_sparse = []
-    runs = 100   
+    runs = 100  
 
     for size in sizes: 
         # g = generate_random_graph(size)
@@ -334,7 +382,7 @@ def part_a():
 def part_c(): 
     import time, matplotlib.pyplot as plt
     v = 100
-    x = range(v-1, v(v-1)/2)
+    x = [i for i in range(v-1, v(v-1)/2, 5)]
 
     for e in x:
         g = generate_connected_graph(v, e)
