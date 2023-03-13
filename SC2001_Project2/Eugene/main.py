@@ -152,40 +152,54 @@ def DijkstraAlgo_A(graph, source):
     d = []
     pi = []
     S = []
-    pq = priority_queue()
+    pq = []
     
     # Initialization 
     for v in range(graph.getSize()):
         d.append(float('inf'))
         pi.append(0)
         S.append(None)
+        # Push every vertex into priority queue using array
+        pq.append((v, d[v]))
 
     # Set source node 
     d[source-1] = 0
 
-    # Push every vertex into priority queue using array based on d[]
-    for vertex in range(len(d)):
-        pq.add(vertex, d[vertex])
-
-    while pq.len:
+    while len(pq):
         
-        # Get minimum weight    
-        u = pq.getMin()[0] 
+        u = 0
+        # Get minimum weight (vertex, weight)
+        weight = d[0]
+        for index in range(1, len(pq)): 
+            if(pq[index][1] < weight): 
+                u = index
+                weight = pq[index][1]
+
         S[u] = 1
-        pq.remove(u)
+
+        # Remove u from PQ
+        for index in range(len(pq)):
+            if pq[index][0] == u:
+                pq.remove(pq[index])
+                break
 
         for v in range(graph.getSize()):
-            # For every adjacent node
-            if ((graph.adjMatrix[u][v] != 0) and 
-                (graph.adjMatrix[u][v] != float('inf'))
-                # Not already minimized 
-                and (S[v] != 1) 
-                # Can minimize d[v]
-                and (d[v] > d[u] + graph.adjMatrix[u][v])): 
-                pq.remove(v)
-                d[v] = d[u] + graph.adjMatrix[u][v]
-                pi[v] = u+1
-                pq.add(v, d[v])
+            # Adjacent vertex
+            w = graph.adjMatrix[u][v]
+            
+            if ((w !=0) and 
+                (w != float('inf'))):
+
+                # If v is visited, ignore
+                if(S[v]==1):
+                    continue
+
+                temp_weight = d[u] + w
+
+                if temp_weight < d[v]:
+                    # Update weight
+                    d[v] = temp_weight 
+                    pq[v][1] = temp_weight 
 
     return S, d, pi
             
@@ -230,26 +244,6 @@ def DijkstraAlgo_B(graph, source):
 
 import random
 
-def generate_graph(num_vertices, num_edges):
-    # Initialize empty graph
-    graph = Graph(num_vertices)
-
-    # Generate edges for sparse graph
-    if num_edges <= num_vertices * (num_vertices - 1) / 2:
-        edges = random.sample(range(num_vertices * (num_vertices - 1) // 2), num_edges)
-        edges = [(i, j) for i in range(num_vertices) for j in range(i+1, num_vertices) if i*num_vertices+j in edges]
-    # Generate edges for dense graph
-    else:
-        edges = [(i, j) for i in range(num_vertices) for j in range(i+1, num_vertices)]
-
-    # Add edges to graph with random weights
-    for edge in edges:
-        weight = random.randint(1, 100)
-        graph.add_edge(edge[0]+1, edge[1]+1, weight)
-
-    return graph
-import random
-
 def generate_graph(size, num_edges, sparse=True):
     graph = Graph(size)
     
@@ -283,8 +277,16 @@ def generate_graph(size, num_edges, sparse=True):
 
 
 def main():
+    part_a()
+
+    # part_c()
+
+
+def part_a():
     import time, random, matplotlib.pyplot as plt 
 
+    
+    # Part A 
     sizes = range(10, 200, 10)
     runtime_dense = []
     runtime_sparse = []
@@ -329,39 +331,57 @@ def main():
     plt.legend()
     plt.show()
 
-    # s = 5
-    # g = Graph(s)
-    
-    # g.add_edge(1, 2, 4)
-    # g.add_edge(1, 3, 2)
-    # g.add_edge(1, 4, 6)
-    # g.add_edge(1, 5, 8)
-    # g.add_edge(2, 4, 4)
-    # g.add_edge(2, 5, 3) 
-    # g.add_edge(3, 4, 1)
-    # g.add_edge(4, 2, 1)
-    # g.add_edge(4, 5, 3)
+def part_c(): 
+    import time, matplotlib.pyplot as plt
+    v = 100
+    x = range(v-1, v(v-1)/2)
 
-    # # Adjacency Matrix
-    # g.print_matrix()
+    for e in x:
+        g = generate_connected_graph(v, e)
+        runs = 100
 
-    
-    # start_time = time.time()
-    # S, d, pi = DijkstraAlgo_A(g, 1)
-    # print(S, d, pi)
-    # elapsed_time = time.time() - start_time 
-    
-    # print("Elapsed Time: {:2}s".format(elapsed_time))
- 
-    # # Adjacency Lists
-    # g.print_list()
+        runtime_a = []
+        runtime_b = []
+        elapsed_time = 0    
+            
+        for _ in range(runs): 
+            start_time = time.time()
+            DijkstraAlgo_A(g, 1)
+            # print(S, d, pi)
+            elapsed_time += time.time() - start_time 
 
-    # start_time = time.time()
-    # S, d, pi = DijkstraAlgo_B(g, 1)
-    # print(S, d, pi)
-    # elapsed_time = time.time() - start_time 
+    runtime_a.append(elapsed_time/runs)
+    runtime_b.append(elapsed_time/runs)
 
-    # print("Elapsed Time: {:2}s".format(elapsed_time))
+    # Plot the runtime against the vertex size
+    plt.plot(x, runtime_a, label="")
+    plt.plot(x, runtime_b, label="Dense Graph")
+    plt.xlabel('|V|')
+    plt.ylabel('Runtime (seconds)')
+    plt.title('Runtime vs |V| for Sparse vs Dense Graphs')
+    plt.legend()
+    plt.show()
+
+def generate_connected_graph(num_vertices, num_edges):
+    import networkx as nx
+
+    # Create an empty graph with n nodes
+    G = nx.Graph()
+    G.add_nodes_from(range(num_vertices))
+
+    edges = 0
+
+    # Add random edges until the graph becomes strongly connected
+    while not nx.is_strongly_connected(G) and edges <= num_edges:
+        # Choose two random nodes
+        u = random.randint(0, num_vertices - 1)
+        v = random.randint(0, num_vertices - 1)
+
+        # Add an edge between them
+        G.add_edge(u, v)
+        edges+=1
+
+    return G
 
 if __name__ == '__main__':
     main()
