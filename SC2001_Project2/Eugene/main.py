@@ -230,41 +230,71 @@ def DijkstraAlgo_B(graph, source):
 
 import random
 
-def generate_random_graph(size):
-    # Initialize graph
+def generate_graph(num_vertices, num_edges):
+    # Initialize empty graph
+    graph = Graph(num_vertices)
+
+    # Generate edges for sparse graph
+    if num_edges <= num_vertices * (num_vertices - 1) / 2:
+        edges = random.sample(range(num_vertices * (num_vertices - 1) // 2), num_edges)
+        edges = [(i, j) for i in range(num_vertices) for j in range(i+1, num_vertices) if i*num_vertices+j in edges]
+    # Generate edges for dense graph
+    else:
+        edges = [(i, j) for i in range(num_vertices) for j in range(i+1, num_vertices)]
+
+    # Add edges to graph with random weights
+    for edge in edges:
+        weight = random.randint(1, 100)
+        graph.add_edge(edge[0]+1, edge[1]+1, weight)
+
+    return graph
+import random
+
+def generate_graph(size, num_edges, sparse=True):
     graph = Graph(size)
+    
+    # generate dense graph
+    if not sparse:
+        edge_count = 0
+        for i in range(size):
+            for j in range(i+1, size):
+                if edge_count < num_edges:
+                    weight = random.randint(1, 100)
+                    graph.add_edge(i+1, j+1, weight)
+                    edge_count += 1
+                else:
+                    break
+        return graph
+    
+    # generate sparse graph
+    # set the number of edges for each vertex
+    num_edges_per_vertex = num_edges // size
 
-    # Generate a random permutation of vertices
-    vertices = list(range(1, size + 1))
-    random.shuffle(vertices)
-
-    # Add edges to create a random strongly connected graph
     for i in range(size):
-        v1 = vertices[i]
-        v2 = vertices[(i + 1) % size]
-        weight = random.randint(1, 10)
-        graph.add_edge(v1, v2, weight)
-
-    # Add additional random edges to increase connectivity
-    for i in range(size * 2):
-        v1 = random.randint(1, size)
-        v2 = random.randint(1, size)
-        if v1 != v2:
-            weight = random.randint(1, 10)
-            graph.add_edge(v1, v2, weight)
-
+        edges_added = 0
+        while edges_added < num_edges_per_vertex:
+            j = random.randint(1, size)
+            if i+1 != j and graph.adjMatrix[i][j-1] == float('inf'):
+                weight = random.randint(1, 100)
+                graph.add_edge(i+1, j, weight)
+                edges_added += 1
+                
     return graph
 
 
 def main():
     import time, random, matplotlib.pyplot as plt 
 
-    sizes = range(10, 300, 10)
-    runtime = []
+    sizes = range(10, 200, 10)
+    runtime_dense = []
+    runtime_sparse = []
     runs = 100   
 
     for size in sizes: 
-        g = generate_random_graph(size)
+        # g = generate_random_graph(size)
+
+        edges = size * (size-1) / 2
+        g = generate_graph(size, edges, sparse=True)
         elapsed_time = 0    
         
         for _ in range(runs): 
@@ -275,13 +305,27 @@ def main():
 
         print(size)
         # print("Elapsed Time: {:2}s".format(elapsed_time))
-        runtime.append(elapsed_time/runs)
+        runtime_sparse.append(elapsed_time/runs)
+
+        g = generate_graph(size, edges, sparse=False)
+        elapsed_time = 0    
+        
+        for _ in range(runs): 
+            start_time = time.time()
+            DijkstraAlgo_A(g, 1)
+            # print(S, d, pi)
+            elapsed_time += time.time() - start_time 
+
+        print(size)
+        # print("Elapsed Time: {:2}s".format(elapsed_time))
+        runtime_dense.append(elapsed_time/runs)
 
     # Plot the runtime against the vertex size
-    plt.plot(sizes, runtime, label="O($|V|^2$)")
+    plt.plot(sizes, runtime_sparse, label="Sparse Graph")
+    plt.plot(sizes, runtime_dense, label="Dense Graph")
     plt.xlabel('|V|')
     plt.ylabel('Runtime (seconds)')
-    plt.title('Runtime vs |V| for Strongly Connected Graphs')
+    plt.title('Runtime vs |V| for Sparse vs Dense Graphs')
     plt.legend()
     plt.show()
 
