@@ -224,42 +224,43 @@ def DijkstraAlgo_A(graph, source):
 
     return S, d, pi
             
-
 def DijkstraAlgo_B(graph, source):
-    # use the adjacency list to find the shortest path
-    d = []
-    pi = []
-    S = []
-    pq = priority_queue_heap()
+    d = [] # distance array
+    pi = [] # predecessor array
+    S = [] # visited array
 
-    for v in range(graph.getSize()): # Time Complexity = O(V)
+    for v in range(graph.getSize()):
         d.append(float('inf'))
         pi.append(0)
         S.append(None)
 
     d[source-1] = 0
 
-    # Push every vertex into priority queue using array based on d[]
-    for vertex in range(len(d)):
-        pq.add(vertex, d[vertex])
+    # initialise priority queue: 
+    pq = [(0,source-1)] 
 
-    while pq.len:
+
+    while pq:
+
+            # Get vertex with minimum weight
+            weight,u = heapq.heappop(pq) # Time Complexity = O(log|V|) * |V|
+
+            # If vertex already visited continue to next iteration
+            if (S[u] == 1):
+                continue
             
-            # Get minimum weight    
-            u = pq.getMin()[1] # Time Complexity = O(1)
+            # Set vertex as visited
             S[u] = 1
-            pq.remove(u) # Time Complexity = O(V)
 
-            # For every adjacent node
-            # Use BFS to traverse the graph using the adjacency list
-            for v in graph.adjList[u]: # Time Complexity = O(|E| + |V|)
-                if ((v[1] != 0) and (v[1] != float('inf'))
-                and (d[v[0]-1] > d[u] + v[1]) and (S[v[0]-1] == None)):
-                    pq.remove(v[0]-1) # Time Complexity = O(V)
-                    d[v[0]-1] = d[u] + v[1] 
-                    pi[v[0]-1] = u+1
-                    pq.add(v[0]-1, d[v[0]-1]) # Time Complexity = O(log(V))
+            for v,weight in graph.adjList[u]:
+                 
+                 # If neighbour not visited and can minimize d[v]
+                 if (S[v] != 1) and (d[v] > d[u] + weight):
+                    d[v] = d[u] + weight
+                    pi[v] = u+1 # Time Complexity = O(log|V|) * |E|
 
+                    # Add updated vertex to priority queue
+                    heapq.heappush(pq, (d[v], v))
 
     return S, d, pi
 
@@ -299,8 +300,8 @@ def generate_graph(size, num_edges, sparse=True):
 
 def main():
     # part_a()
-    part_b()
-    # part_c()
+    # part_b()
+    part_c()
 
 
 def part_a():
@@ -389,9 +390,9 @@ def part_b():
 
 def part_c(): 
     import time, matplotlib.pyplot as plt
-    v = 100
+    v = 40
 
-    edges = [i for i in range(v-1, int(v*(v-1)/2), 50)]
+    edges = [i for i in range(v-1, int(v*(v-1)), 2)]
 
     runtime_a = []
     runtime_b = []
@@ -409,18 +410,18 @@ def part_c():
             elapsed_time += time.time() - start_time 
         runtime_a.append(elapsed_time/runs)
 
-        # elapsed_time = 0
-        # for _ in range(runs): 
-        #     start_time = time.time()
-        #     DijkstraAlgo_B(g, 1)
-        #     elapsed_time += time.time() - start_time 
+        elapsed_time = 0
+        for _ in range(runs): 
+            start_time = time.time()
+            DijkstraAlgo_B(g, 1)
+            elapsed_time += time.time() - start_time 
 
-        # runtime_b.append(elapsed_time/runs)
+        runtime_b.append(elapsed_time/runs)
         print(e)
 
     # Plot the runtime against the vertex size
     plt.plot(edges, runtime_a, label="AdjMat + Array PQ")
-    # plt.plot(edges, runtime_b, label="AlgoB")
+    plt.plot(edges, runtime_b, label="AdjList + Minheap PQ")
     plt.xlabel('|E|')
     plt.ylabel('Empirical runtime (seconds)')
     plt.title('Runtime vs |E| for V = {}'.format(v))
