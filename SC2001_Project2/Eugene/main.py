@@ -311,6 +311,7 @@ def part_a():
     sizes = range(10, 200, 10)
     runtime_dense = []
     runtime_sparse = []
+    runtime_theory = []
     runs = 100  
 
     for size in sizes: 
@@ -323,11 +324,9 @@ def part_a():
         for _ in range(runs): 
             start_time = time.time()
             DijkstraAlgo_A(g, 1)
-            # print(S, d, pi)
             elapsed_time += time.time() - start_time 
 
         print(size)
-        # print("Elapsed Time: {:2}s".format(elapsed_time))
         runtime_sparse.append(elapsed_time/runs)
 
         g = generate_graph(size, edges, sparse=False)
@@ -340,12 +339,13 @@ def part_a():
             elapsed_time += time.time() - start_time 
 
         print(size)
-        # print("Elapsed Time: {:2}s".format(elapsed_time))
         runtime_dense.append(elapsed_time/runs)
+        # runtime_theory.append(size**2/runs)
 
     # Plot the runtime against the vertex size
     plt.plot(sizes, runtime_sparse, label="Sparse Graph")
     plt.plot(sizes, runtime_dense, label="Dense Graph")
+    # plt.plot(sizes, runtime_theory, label="Theoretical Runtime O(|V|^2)")
     plt.xlabel('|V|')
     plt.ylabel('Runtime (seconds)')
     plt.title('Runtime vs |V| for Sparse vs Dense Graphs')
@@ -356,7 +356,7 @@ def part_a():
 
 def part_b(): 
     import time, matplotlib.pyplot as plt
-    v = 100
+    v = 45
 
     edges = [i for i in range(0, int(v*(v-1)/2), 2)]
 
@@ -365,7 +365,7 @@ def part_b():
     for e in edges:
         g = generate_graph(v, e, False)
 
-        runs = 10
+        runs = 300
 
         elapsed_time = 0    
             
@@ -373,6 +373,7 @@ def part_b():
             start_time = time.time()
             DijkstraAlgo_A(g, 1)
             elapsed_time += time.time() - start_time 
+            
         runtime_a.append(elapsed_time/runs)
         print(e)
 
