@@ -2,6 +2,8 @@ import heapq
 import numpy as np
 # Adjacency Matrix representation in Python
 
+import random
+
 class Graph(object):
 
     # Initialize the matrix
@@ -53,40 +55,8 @@ class Graph(object):
 
     def getSize(self):
         return self.size
-
-    # Print the matrix
-    def print_matrix(self):
-        for row in self.adjMatrix:
-            for val in row:
-                print('{:4}'.format(val), end=" "),
-            print("\n")
-
-    def print_list(self): 
-        for vertex in self.adjList:
-            print("{} -> ".format(vertex+1), end=" ")
-            for item in self.adjList[vertex]:
-                print("{}".format(item), end=" ")
-            print("\n")
-
-    # Check if graph is strongly connected
-    def is_strongly_connected(self):
-        # Perform DFS from each vertex
-        for start in range(self.size):
-            visited = [False] * self.size
-            self._dfs(start, visited)
-
-            # Check if all vertices were visited
-            if not all(visited):
-                return False
-
-        return True
     
-    # Helper function for DFS
-    def _dfs(self, vertex, visited):
-        visited[vertex] = True
-        for neighbor in self.adjList[vertex]:
-            if not visited[neighbor[0] - 1]:
-                self._dfs(neighbor[0] - 1, visited)
+
 
 
 class priority_queue(object): 
@@ -149,6 +119,7 @@ class priority_queue_heap(object):
         print(self.pq)
 
 # def DijkstraAlgo_A(graph, source):
+#     import sys
 #     d = []
 #     pi = []
 #     S = []
@@ -159,37 +130,39 @@ class priority_queue_heap(object):
 #         d.append(float('inf'))
 #         pi.append(0)
 #         S.append(None)
-#         pq.append((v, d[v])) # Push every vertex into priority queue using array
+#         # Push every vertex into priority queue using array
+#         pq.append((v, d[v]))
 
+#     pq[source-1] = (pq[source-1][0], 0)
 #     # Set source node 
 #     d[source-1] = 0
 
 #     while len(pq):
-            
-#         pq.sort(key=lambda x: x[1])
-#         print(pq)
+#         u = -1
+#         # Get minimum weight (vertex, weight)
+#         weight = sys.maxsize # Get max weight (ignoring infinity)
+#         for index in range(len(pq)): 
+#             if(pq[index][1] < weight and S[index] == None): 
+#                 u = index
+#                 weight = pq[index][1]
 
-#         # Get minimum weight
-#         u = pq[0][0]
+#         # Break out of loop when solution is reached
+#         if u == -1:
+#             break
 
-#         if S[u] == 1:
-#             for i in range(len(pq)-1): 
-#                 if pq[i][0] == u:
-#                     pq.remove(pq[i])
-#             continue
+#         S[u] = 1 # Store into Solution Set
 
-#         S[u] = 1
 #         for v in range(graph.getSize()):
-#             # For every adjacent node
-#             if ((graph.adjMatrix[u][v] != 0) and 
-#                 (graph.adjMatrix[u][v] != float('inf'))
-#                 # Not already minimized 
-#                 and (S[v] != 1) 
-#                 # Can minimize d[v]
-#                 and (d[v] > d[u] + graph.adjMatrix[u][v])): 
-#                 d[v] = d[u] + graph.adjMatrix[u][v]
-#                 pi[v] = u+1
-#                 pq.append((v, d[v]))
+#             w = graph.adjMatrix[u][v]
+#             # For each adjacent vertex to u
+#             if ((w !=0) and 
+#                 (w != float('inf')) and S[v] != 1):
+#                 temp_weight = weight + w
+#                 if temp_weight < d[v]:
+#                     # Update weight
+#                     d[v] = temp_weight 
+#                     pq[v] = (pq[v][0],temp_weight)
+
 
 #     return S, d, pi
 
@@ -326,8 +299,8 @@ def generate_graph(size, num_edges, sparse=True):
 
 def main():
     # part_a()
-
-    part_c()
+    part_b()
+    # part_c()
 
 
 def part_a():
@@ -378,58 +351,81 @@ def part_a():
     plt.title('Runtime vs |V| for Sparse vs Dense Graphs')
     plt.legend()
     plt.show()
+    
 
-def part_c(): 
+
+def part_b(): 
     import time, matplotlib.pyplot as plt
     v = 100
-    x = [i for i in range(v-1, v(v-1)/2, 5)]
 
-    for e in x:
-        g = generate_connected_graph(v, e)
-        runs = 100
+    edges = [i for i in range(0, int(v*(v-1)/2), 2)]
 
-        runtime_a = []
-        runtime_b = []
+    runtime_a = []
+
+    for e in edges:
+        g = generate_graph(v, e, False)
+
+        runs = 10
+
         elapsed_time = 0    
             
         for _ in range(runs): 
             start_time = time.time()
             DijkstraAlgo_A(g, 1)
-            # print(S, d, pi)
             elapsed_time += time.time() - start_time 
-
-    runtime_a.append(elapsed_time/runs)
-    runtime_b.append(elapsed_time/runs)
+        runtime_a.append(elapsed_time/runs)
+        print(e)
 
     # Plot the runtime against the vertex size
-    plt.plot(x, runtime_a, label="")
-    plt.plot(x, runtime_b, label="Dense Graph")
-    plt.xlabel('|V|')
-    plt.ylabel('Runtime (seconds)')
-    plt.title('Runtime vs |V| for Sparse vs Dense Graphs')
+    plt.plot(edges, runtime_a, label="AdjMat + Array PQ")
+    # plt.plot(edges, runtime_b, label="AlgoB")
+    plt.xlabel('|E|')
+    plt.ylabel('Empirical runtime (seconds)')
+    plt.title('Runtime vs |E| for V = {}'.format(v))
     plt.legend()
     plt.show()
 
-def generate_connected_graph(num_vertices, num_edges):
-    import networkx as nx
 
-    # Create an empty graph with n nodes
-    G = nx.Graph()
-    G.add_nodes_from(range(num_vertices))
+def part_c(): 
+    import time, matplotlib.pyplot as plt
+    v = 100
 
-    edges = 0
+    edges = [i for i in range(v-1, int(v*(v-1)/2), 50)]
 
-    # Add random edges until the graph becomes strongly connected
-    while not nx.is_strongly_connected(G) and edges <= num_edges:
-        # Choose two random nodes
-        u = random.randint(0, num_vertices - 1)
-        v = random.randint(0, num_vertices - 1)
+    runtime_a = []
+    runtime_b = []
 
-        # Add an edge between them
-        G.add_edge(u, v)
-        edges+=1
+    for e in edges:
+        g = generate_graph(v, e, True)
 
-    return G
+        runs = 100
+
+        elapsed_time = 0    
+            
+        for _ in range(runs): 
+            start_time = time.time()
+            DijkstraAlgo_A(g, 1)
+            elapsed_time += time.time() - start_time 
+        runtime_a.append(elapsed_time/runs)
+
+        # elapsed_time = 0
+        # for _ in range(runs): 
+        #     start_time = time.time()
+        #     DijkstraAlgo_B(g, 1)
+        #     elapsed_time += time.time() - start_time 
+
+        # runtime_b.append(elapsed_time/runs)
+        print(e)
+
+    # Plot the runtime against the vertex size
+    plt.plot(edges, runtime_a, label="AdjMat + Array PQ")
+    # plt.plot(edges, runtime_b, label="AlgoB")
+    plt.xlabel('|E|')
+    plt.ylabel('Empirical runtime (seconds)')
+    plt.title('Runtime vs |E| for V = {}'.format(v))
+    plt.legend()
+    plt.show()
+
 
 if __name__ == '__main__':
     main()
