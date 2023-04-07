@@ -300,8 +300,8 @@ def generate_graph(size, num_edges, sparse=True):
 
 def main():
     # part_a()
-    # part_b()
-    part_c()
+    part_b()
+    # part_c()
 
 
 def part_a():
@@ -318,7 +318,7 @@ def part_a():
     for size in sizes: 
         # g = generate_random_graph(size)
 
-        edges = size * (size-1) / 2
+        edges = size * (size-1) 
         g = generate_graph(size, edges, sparse=True)
         elapsed_time = 0    
         
@@ -357,16 +357,16 @@ def part_a():
 
 def part_b(): 
     import time, matplotlib.pyplot as plt
-    v = 45
+    v = 40
 
-    edges = [i for i in range(0, int(v*(v-1)/2), 2)]
+    edges = [i for i in range(0, int(v*(v-1)), 2)]
 
     runtime_a = []
 
     for e in edges:
         g = generate_graph(v, e, False)
 
-        runs = 300
+        runs = 200
 
         elapsed_time = 0    
             
